@@ -1496,7 +1496,7 @@
                             <div class="bg-white p-3 rounded border mt-1 text-sm"><p>${expediente.notas_administrativas.replace(/\n/g, '<br>')}</p></div>
                         </div>` : ''}
                 </div>
-
+                /*
                 <div class="bg-yellow-50 p-4 rounded-lg">
                     <h4 class="text-lg font-medium text-gray-900 mb-3">📁 Archivos Adjuntos</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -1504,7 +1504,7 @@
                         <div><strong>INE Reverso:</strong> ${expediente.path_ine_reverso ? `<a href="${expediente.path_ine_reverso.substring(3)}" target="_blank" class="text-blue-600 hover:underline">Ver/Descargar</a>` : 'No disponible'}</div>
                     </div>
                 </div>
-
+                */
                 <div class="bg-indigo-50 p-4 rounded-lg">
                     <h4 class="text-lg font-medium text-gray-900 mb-3">📄 Documentos de Respaldo</h4>
                     <div class="text-sm">
@@ -1708,7 +1708,7 @@
                     title = 'Domicilio Completo';
                     body = 'Anota la dirección completa de tu casa: calle, número, colonia y código postal. Esto es para verificar dónde vives.';
                     break;
-                case 'ine-anverso':
+                /*case 'ine-anverso':
                     title = 'INE Anverso (Frente)';
                     body = 'Sube una foto clara de la parte frontal de tu INE. Asegúrate de que tu nombre y foto se distingan bien.';
                     break;
@@ -1716,6 +1716,7 @@
                     title = 'INE Reverso (Atrás)';
                     body = 'Sube una foto clara de la parte de atrás de tu INE. Revisa que el código y la fecha de vigencia se vean sin problemas.';
                     break;
+                    */
                 case 'documentos':
                     title = 'Documentos de Respaldo';
                     body = 'Para agilizar el proceso de tu solicitud, por favor sube cualquier documento de respaldo que tengas. Puedes adjuntar múltiples archivos en formatos JPG, PNG y PDF.';
