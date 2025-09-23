@@ -1,5 +1,5 @@
 <?php
-// Incluimos la conexión que ya sabe cómo hablar con la base de datos de Render
+// Incluimos la nueva conexión con PDO
 include 'conexion.php';
 
 // Desactivamos el header JSON para poder ver texto HTML normal
@@ -50,20 +50,16 @@ CREATE TABLE documentos_respaldo (
 );
 ";
 
-// Ejecutamos la consulta para crear todas las tablas a la vez
-if ($conexion->multi_query($sql_schema)) {
-    // Es necesario limpiar los resultados de la conexión después de un multi_query
-    while ($conexion->next_result()) {
-        if ($result = $conexion->store_result()) {
-            $result->free();
-        }
-    }
+// En PDO, usamos try-catch para manejar errores y exec() para ejecutar el bloque SQL
+try {
+    $conexion->exec($sql_schema);
     echo "<h2 style='color: green;'>¡Éxito! Todas las tablas fueron creadas correctamente.</h2>";
     echo "<p>Por seguridad, ahora debes eliminar el archivo setup_database.php de tu proyecto y subir el cambio a GitHub.</p>";
-} else {
+} catch (PDOException $e) {
     echo "<h2 style='color: red;'>Error al crear las tablas:</h2>";
-    echo "<pre>" . $conexion->error . "</pre>";
+    echo "<pre>" . $e->getMessage() . "</pre>";
 }
 
-$conexion->close();
+// En PDO, la conexión se cierra asignando null
+$conexion = null;
 ?>
