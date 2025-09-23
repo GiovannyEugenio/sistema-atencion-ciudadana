@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Atención Ciudadana - Cámara de Diputados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-recibido {
+            @apply bg-blue-100 text-blue-800;
+        }
+
+        .status-proceso {
+            @apply bg-yellow-100 text-yellow-800;
+        }
+
+        .status-concluido {
+            @apply bg-green-100 text-green-800;
+        }
+
+        .status-archivado {
+            @apply bg-gray-100 text-gray-800;
+        }
+
+        /* Fondo SOLO para el login */
+        #loginScreen {
+            background: url("static/fondo.png") no-repeat;
+            background-position: center;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 flex flex-col items-center justify-center z-50">
+        <div class="fixed top-0 left-0 right-0 p-4 z-50">
+            <div class="container mx-auto flex justify-center items-center relative">
+                <h1 class="text-2xl font-bold text-[#7d1c4a]">Diseño Atención Ciudadana Digital</h1>
+                <button onclick="openAdminModal()"
+                    class="absolute right-0 text-sm font-medium text-[#9E263E] hover:text-[#7d1c4a] transition-colors duration-200">
+                    Acceso Administrador
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center flex-1 w-full p-4">
+            <div class="bg-white rounded-lg shadow-2xl px-8 py-24 max-w-xl w-full mx-4 text-center">
+
+                <div class="mb-16">
+
+                    <div class="w-24 h-24 bg-[#7d1c4a] rounded-full flex items-center justify-center mx-auto mb-4 p-2">
+                        <span class="text-white font-bold text-1xl leading-none">PÚBLICO</span>
+                    </div>
+
+                    <h2 class="text-3xl font-bold text-[#7d1c4a]">Sistema de Atención Ciudadana</h2>
+
+                    <p class="text-gray-600 mt-2 text-xl text-justify">
+                        Bienvenido. Desde aquí puedes iniciar tu trámite de forma directa y segura.
+
+                    </p>
+                </div>
+
+                <button onclick="accessPublicForm()"
+                    class="w-full bg-[#7d1c4a] text-white py-4 px-6 rounded-md text-lg hover:bg-[#C19300] focus:outline-none focus:ring-2 focus:ring-[#C19300] transition-colors duration-200">
+                    Registrar Solicitud
+                </button>
+
+                <p class="text-xs text-gray-500 mt-10 text-center">
+                    Este acceso es para el público en general que desea iniciar un trámite.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="adminModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-end">
+                <button onclick="closeModal('adminModal')" class="text-gray-500 hover:text-gray-900">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-[#781414] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-white font-bold text-2xl">CD</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Acceso Administrativo</h2>
+                <p class="text-gray-600 mt-2">Sistema de Atención Ciudadana</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+                    <input type="text" id="username" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#781414]"
+                        placeholder="Ingrese su usuario">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                    <input type="password" id="password" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#781414]"
+                        placeholder="Ingrese su contraseña">
+                </div>
+                <button type="submit"
+                    class="w-full bg-[#781414] text-white py-2 px-4 rounded-md hover:bg-[#5A0F0F] focus:outline-none focus:ring-2 focus:ring-[#C19300]">
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <div class="mt-4 p-3 bg-gray-50 rounded-md">
+                <p class="text-xs text-gray-700"><strong>Credenciales de prueba:</strong></p>
+                <p class="text-xs text-gray-600">Usuario: admin | Contraseña: admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Las funciones `openModal` y `closeModal` ya deberían estar en tu código
+        // si no las tienes, agrégalas para que funcione el modal de admin
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Nueva función para abrir el modal del administrador
+        function openAdminModal() {
+            openModal('adminModal');
+        }
+    </script>
+
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-[#7d1c4a] to-[#7d1c4a] text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <span class="text-[#781414] font-bold text-xl">CD</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Sistema de Atención Ciudadana</h1>
+                        <p class="text-gray-200">Cámara de Diputados - Fernando Castro Trenti</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-200" id="userInfo">Usuario: Público</p>
+                    <p class="text-xs text-gray-300" id="currentDate"></p>
+                    <button id="logoutBtn" onclick="logout()" #7d1
+                        class="hidden mt-2 text-xs bg-[#9a255f] hover:bg-[#63173d] px-3 py-1 rounded text-white">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md border-b">
+        <div class="container mx-auto px-6">
+            <div class="flex space-x-8">
+                <button id="nav-dashboard" onclick="showSection('dashboard')"
+                    class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
+                    Dashboard
+                </button>
+                <button id="nav-nueva-solicitud" onclick="showSection('nueva-solicitud')"
+                    class="nav-btn py-4 px-2 border-b-2 border-[#C19300] text-[#C19300] font-medium">
+                    Nueva Solicitud
+                </button>
+                <button id="nav-seguimiento" onclick="showSection('seguimiento')"
+                    class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
+                    Seguimiento
+                </button>
+                <button id="nav-expedientes" onclick="showSection('expedientes')"
+                    class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
+                    Expedientes
+                </button>
+                <button id="nav-busqueda" onclick="showSection('busqueda')"
+                    class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
+                    Búsqueda
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        <div id="dashboard" class="section hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Solicitudes</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="totalSolicitudes">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Recibidas</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="recibidas">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">En Proceso</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="enProceso">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Concluidas</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="concluidas">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas por Municipio -->
+            <div class="bg-white rounded-lg shadow-md mb-8">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">📍 Estadísticas por Municipio</h3>
+                    <p class="text-sm text-gray-600">Distribución de solicitudes por municipio de Baja California</p>
+                </div>
+                <div class="p-6">
+                    <div id="municipiosStats"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <!-- Estadísticas de municipios se generan dinámicamente aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Solicitudes Recientes -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Solicitudes Recientes</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Folio</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Solicitante</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Fecha</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Estatus</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentSolicitudes" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay solicitudes
+                                    registradas
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Nueva Solicitud -->
+        <div id="nueva-solicitud" class="section">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Registro de Nueva Solicitud</h3>
+                    <p class="text-sm text-gray-600 mt-1">Complete el formulario para registrar su solicitud. Todos los
+                        campos marcados con * son obligatorios, si tiene alguna duda sobre que hacer en cada campo
+                        presione
+                        el icono ❓ </p>
+                </div>
+                <form id="solicitudForm" class="p-6 space-y-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">Información del Solicitante</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo * <span
+                                        class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                        onclick="showHelp('nombre')">❓</span>
+                                </label>
+                                <input type="text" id="nombreSolicitante" name="nombreSolicitante" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Ingrese su nombre completo">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Municipio *
+                                    <span class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                        onclick="showHelp('municipio')">❓</span>
+                                </label>
+                                <select id="municipioSolicitante" name="municipioSolicitante" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Seleccione su municipio</option>
+                                    <option value="Mexicali">Mexicali</option>
+                                    <option value="Tijuana">Tijuana</option>
+                                    <option value="Ensenada">Ensenada</option>
+                                    <option value="Playas de Rosarito">Playas de Rosarito</option>
+                                    <option value="Tecate">Tecate</option>
+                                    <option value="San Quintín">San Quintín</option>
+                                    <option value="San Felipe">San Felipe</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono *
+                                    <span class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                        onclick="showHelp('telefono')">❓</span>
+                                </label>
+                                <input type="tel" id="telefonoSolicitante" name="telefonoSolicitante" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="10 dígitos">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico *
+                                    <span class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                        onclick="showHelp('correo')">❓</span>
+                                </label>
+                                <input type="email" id="correoSolicitante" name="correoSolicitante" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="ejemplo@correo.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Domicilio Completo *
+                                    <span class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                        onclick="showHelp('domicilio')">❓</span>
+                                </label>
+                                <input type="text" id="domicilioSolicitante" name="domicilioSolicitante" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Calle, número, colonia, código postal">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- INE -->
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">Identificación Oficial (INE)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">INE Anverso (Frente) *
+                                    <span class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                        onclick="showHelp('ine-anverso')">❓</span>
+                                </label>
+                                <input type="file" id="ineAnverso" name="ineAnverso" accept="image/*,.pdf" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 mt-1">Formato: JPG, PNG, PDF (máx. 5MB)</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">INE Reverso (Atrás) *
+                                    <span class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                        onclick="showHelp('ine-reverso')">❓</span>
+                                </label>
+                                <input type="file" id="ineReverso" name="ineReverso" accept="image/*,.pdf" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 mt-1">Formato: JPG, PNG, PDF (máx. 5MB)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Documentos de Respaldo -->
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">Documentos de Respaldo (Opcional)</h4>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Adjunte documentos adicionales
+                                <span class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                    onclick="showHelp('documentos')">❓</span>
+                            </label>
+                            <input type="file" id="documentosRespaldo" name="documentosRespaldo[]" accept="image/*,.pdf"
+                                multiple
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Puede adjuntar varios archivos (JPG, PNG, PDF). Cada
+                                archivo de hasta 5MB.</p>
+                        </div>
+                    </div>
+                    <!-- Solicitud -->
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">Descripción de la Solicitud</h4>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Detalle su solicitud *
+                                <span class="text-blue-500 hover:text-blue-700 cursor-pointer text-base ml-1"
+                                    onclick="showHelp('descripcion')">❓</span>
+                            </label>
+                            <textarea id="descripcionSolicitud" name="descripcionSolicitud" required rows="5"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Describa detalladamente su solicitud..."></textarea>
+                        </div>
+                    </div>
+                    <!-- Informacion Administrativa (solo para admin) -->
+                    <div id="adminFields" class="bg-gray-50 p-4 rounded-lg hidden">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">Información Administrativa</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Responsable del
+                                    Registro</label>
+                                <input type="text" id="responsableRegistro" name="responsableRegistro"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Nombre del funcionario">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Notas y
+                                    Observaciones</label>
+                                <textarea id="notasObservaciones" name="notasObservaciones" rows="2"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Notas adicionales del funcionario..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Aviso de Privacidad -->
+                    <div id="privacidadModal"
+                        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+                        <div class="bg-white rounded-lg shadow-xl max-w-xl w-full mx-4 max-h-screen overflow-y-auto">
+                            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-lg font-medium text-gray-900">Aviso de Privacidad</h3>
+                                <button onclick="closeModal('privacidadModal')"
+                                    class="text-gray-500 hover:text-gray-900">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-6 text-gray-700">
+                                <p class="mb-4">
+                                    En cumplimiento con la Ley Federal de Protección de Datos Personales en Posesión de
+                                    los
+                                    Particulares, la Cámara de Diputados, a través del Sistema de Gestión de Atención
+                                    Ciudadana, informa que los datos personales recabados serán utilizados únicamente
+                                    para
+                                    el registro, seguimiento y gestión de las solicitudes ciudadanas.
+                                </p>
+                                <p class="mb-4">
+                                    Sus datos no serán transferidos a terceros sin su consentimiento, salvo las
+                                    excepciones
+                                    previstas en el artículo 37 de la Ley. Usted tiene derecho a ejercer sus derechos de
+                                    Acceso, Rectificación, Cancelación u Oposición (ARCO) sobre el tratamiento de sus
+                                    datos.
+                                </p>
+                                <p class="mb-4">
+                                    Para cualquier duda o aclaración, puede contactar a nuestra Unidad de Transparencia
+                                    a
+                                    través del correo electrónico o teléfono oficial.
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    Este aviso de privacidad podrá ser modificado sin previo aviso. Le recomendamos
+                                    revisar
+                                    periódicamente esta sección.
+                                </p>
+                            </div>
+                            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-4">
+                                <button onclick="closeModal('privacidadModal')"
+                                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                    Cancelar
+                                </button>
+                                <button type="button" onclick="submitApplication()"
+                                    class="px-4 py-2 bg-[#7d1c4a] text-white rounded-md hover:bg-[#C19300]">
+                                    Aceptar y Registrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                        <button type="button" onclick="limpiarFormulario()"
+                            class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Limpiar Formulario
+                        </button>
+                        <button type="button" onclick="validarYMostrarAviso()"
+                            class="px-6 py-2 bg-[#7d1c4a] text-white rounded-md hover:bg-[#C19300] focus:outline-none focus:ring-2 focus:ring-[#C19300]">
+                            Registrar Solicitud
+                        </button>
+                    </div>
+                </form>
+                <div id="successMessage" class="hidden p-6 text-center">
+                    <div class="max-w-md mx-auto bg-green-50 border border-green-300 rounded-lg p-8 shadow-md">
+                        <h3 class="text-2xl font-bold text-green-800">✅ ¡Solicitud Registrada!</h3>
+                        <p class="mt-2 text-gray-700">Tu solicitud ha sido enviada exitosamente. Por favor, guarda tu
+                            número
+                            de folio para futuras consultas.</p>
+                        <div class="mt-4 bg-white p-3 border rounded-md">
+                            <p class="text-sm text-gray-600">Tu número de folio es:</p>
+                            <p id="folioSuccess" class="text-xl font-bold text-[#7d1c4a] tracking-wider"></p>
+                        </div>
+                        <button onclick="resetNewSolicitudView()"
+                            class="mt-6 px-8 py-3 bg-[#7d1c4a] text-white rounded-md hover:bg-[#C19300] focus:outline-none focus:ring-2 focus:ring-[#C19300]">
+                            Registrar otra Solicitud
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Seguimiento de Trámites -->
+        <div id="seguimiento" class="section hidden">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Seguimiento de Trámites</h3>
+                        <p class="text-sm text-gray-600">Gestione el estatus de las solicitudes registradas</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <select id="filterEstatus" onchange="filtrarPorEstatus()"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+                            <option value="">Todos los estatus</option>
+                            <option value="Recibido">Recibido</option>
+                            <option value="En proceso">En proceso</option>
+                            <option value="Concluido">Concluido</option>
+                            <option value="Archivado">Archivado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Folio</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Solicitante</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Fecha</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Estatus Actual</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Responsable</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="seguimientoTable" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expedientes Digitales -->
+        <div id="expedientes" class="section hidden">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Expedientes Digitales</h3>
+                    <p class="text-sm text-gray-600">Consulte el expediente completo de cada solicitud</p>
+                </div>
+                <div class="p-6">
+                    <div id="expedientesList" class="space-y-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Búsqueda Avanzada de Solicitudes -->
+        <div id="busqueda" class="section hidden">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Búsqueda Avanzada de Solicitudes</h3>
+                    <p class="text-sm text-gray-600">Utilice los filtros para encontrar solicitudes específicas</p>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Folio</label>
+                            <input type="text" id="searchFolio"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="CD-2024-0001">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Solicitante</label>
+                            <input type="text" id="searchNombre"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Nombre completo">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Municipio</label>
+                            <select id="searchMunicipio"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Todos los municipios</option>
+                                <option value="Mexicali">Mexicali</option>
+                                <option value="Tijuana">Tijuana</option>
+                                <option value="Ensenada">Ensenada</option>
+                                <option value="Playas de Rosarito">Playas de Rosarito</option>
+                                <option value="Tecate">Tecate</option>
+                                <option value="San Quintín">San Quintín</option>
+                                <option value="San Felipe">San Felipe</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Estatus</label>
+                            <select id="searchEstatus"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Todos los estatus</option>
+                                <option value="Recibido">Recibido</option>
+                                <option value="En proceso">En proceso</option>
+                                <option value="Concluido">Concluido</option>
+                                <option value="Archivado">Archivado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Registro</label>
+                            <input type="date" id="searchFecha"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="flex justify-center mb-6">
+                        <button onclick="buscarSolicitudes()"
+                            class="px-8 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Buscar Solicitudes
+                        </button>
+                    </div>
+                    <div id="searchResults" class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Folio</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Solicitante</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Fecha</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Estatus</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="searchResultsBody" class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">Ingrese criterios de
+                                        búsqueda para ver resultados</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para cambiar solicitud-->
+    <div id="statusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Actualizar Estatus del Trámite</h3>
+                <p class="text-sm text-gray-600" id="modalFolio"></p>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nuevo Estatus *</label>
+                    <select id="nuevoEstatus"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Recibido">📋 Recibido</option>
+                        <option value="En proceso">⏳ En proceso</option>
+                        <option value="Concluido">✅ Concluido</option>
+                        <option value="Archivado">📁 Archivado</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Responsable del Cambio *</label>
+                    <input type="text" id="nuevoResponsable" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Nombre del funcionario responsable">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones del Cambio</label>
+                    <textarea id="observacionesEstatus" rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Describa el motivo del cambio de estatus..."></textarea>
+                </div>
+            </div>
+            <class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-4">
+                <button onclick="cerrarModalEstatus()"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+
+                <button onclick="guardarCambioEstatus()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Actualizar Estatus
+                </button>
+        </div>
+    </div>
+    </div>
+
+    <!-- Modal de expediente digital -->
+    <div id="expedienteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Expediente Digital Completo</h3>
+            </div>
+            <div id="expedienteContent" class="p-6">
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+                <button onclick="cerrarModalExpediente()"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cerrar Expediente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de vista previa de archivos -->
+    <div id="filePreviewModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900" id="previewTitle">Vista Previa del Archivo</h3>
+                <div class="flex space-x-2">
+                    <button id="downloadFromPreview"
+                        class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+                        📥 Descargar
+                    </button>
+                    <button onclick="cerrarModalPreview()"
+                        class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">
+                        ✕ Cerrar
+                    </button>
+                </div>
+            </div>
+            <div id="previewContent" class="p-6 max-h-96 overflow-auto flex items-center justify-center">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de ayuda -->
+    <div id="helpModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 id="helpModalTitle" class="text-lg font-medium text-gray-900"></h3>
+                <button onclick="closeModal('helpModal')" class="text-gray-500 hover:text-gray-900">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div id="helpModalBody" class="p-6 text-gray-700 space-y-4">
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('helpModal')"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variable global para almacenar las solicitudes
+        let solicitudes = []; // La variable ahora inicia vacía. Se llenará desde el servidor.
+        // Función para cargar datos desde el servidor
+        async function cargarDatosDelServidor() {
+            try {
+                // Hacemos la llamada al nuevo archivo PHP
+                const response = await fetch('api/obtener_solicitudes.php');
+                if (!response.ok) {
+                    throw new Error('La respuesta del servidor no fue OK');
+                }
+                // Convertimos la respuesta JSON a un array de JavaScript
+                const data = await response.json();
+
+                // Actualizamos nuestra variable global de solicitudes
+                solicitudes = data;
+
+                // ¡Importante! Ahora que tenemos los datos, actualizamos la interfaz
+                updateDashboard(); // Esta es tu función que actualiza los contadores
+                updateMunicipiosStats(); // <-- AÑADE ESTA LÍNEA
+                loadRecentSolicitudes(); // Tu función que carga la tabla del dashboard
+                loadSeguimiento(); // Tu función que carga la tabla de seguimiento
+                loadExpedientes(); // Tu función que carga los expedientes
+
+            } catch (error) {
+                console.error("Error al cargar las solicitudes:", error);
+                alert("No se pudieron cargar las solicitudes desde el servidor.");
+            }
+        }
+
+        let folioCounter = parseInt(localStorage.getItem('folioCounter')) || 1;
+        let currentEditingId = null;
+        let isLoggedIn = false;
+        let isPublicAccess = false;
+
+        // Credenciales de administrador
+        const adminCredentials = {
+            username: 'admin',
+            password: 'admin123'
+        };
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', function () {
+            updateCurrentDate();
+            showLoginScreen();
+        });
+        // Actualizar fecha y hora actual
+        function updateCurrentDate() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('es-MX', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('currentDate').textContent = dateStr;
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        function hideLoginScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+        }
+
+        // Manejar login de administrador
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // --- CÓDIGO VERIFICADO PARA LEER LOS DATOS ---
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+
+            // Verificación de seguridad por si los elementos no se encuentran
+            if (!usernameInput || !passwordInput) {
+                alert("Error crítico: No se encontraron los campos de usuario o contraseña en el HTML.");
+                return;
+            }
+
+            const data = {
+                username: usernameInput.value,
+                password: passwordInput.value
+            };
+            // -----------------------------------------
+
+            // ---- El resto del código que ya sabemos que funciona ----
+            try {
+                const response = await fetch('api/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    isLoggedIn = true;
+                    isPublicAccess = false;
+                    closeModal('adminModal');
+                    hideLoginScreen();
+                    enableAdminAccess();
+                    showSection('dashboard');
+                    cargarDatosDelServidor();
+                    updateDashboard(); // Esta línea ya la tienes
+                    updateMunicipiosStats(); // AÑADE ESTA LÍNEA
+                    loadRecentSolicitudes();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Falló la comunicación con el servidor:', error);
+                alert('No se pudo conectar con el servidor. Revisa que XAMPP esté funcionando y la ruta a la API sea correcta.');
+            }
+        });
+
+        // Acceso público para nueva solicitud
+        function accessPublicForm() {
+            isLoggedIn = false;
+            isPublicAccess = true;
+            hideLoginScreen();
+            enablePublicAccess();
+            showSection('nueva-solicitud');
+        }
+
+        function enableAdminAccess() {
+            document.getElementById('userInfo').textContent = 'Usuario: Administrador';
+            document.getElementById('logoutBtn').classList.remove('hidden');
+
+            // Habilitar todas las pestañas
+            const navButtons = ['nav-dashboard', 'nav-nueva-solicitud', 'nav-seguimiento', 'nav-expedientes', 'nav-busqueda'];
+            navButtons.forEach(id => {
+                const btn = document.getElementById(id);
+                btn.disabled = false;
+                btn.classList.remove('text-gray-400', 'cursor-not-allowed');
+                btn.classList.add('text-gray-500', 'hover:text-gray-700');
+            });
+
+            // Mostrar campos administrativos en el formulario
+            document.getElementById('adminFields').classList.remove('hidden');
+        }
+
+        function enablePublicAccess() {
+            document.getElementById('userInfo').textContent = 'Usuario: Acceso Público';
+            document.getElementById('logoutBtn').classList.remove('hidden');
+
+            // Solo habilitar nueva solicitud
+            const publicBtn = document.getElementById('nav-nueva-solicitud');
+            publicBtn.disabled = false;
+            publicBtn.classList.remove('text-gray-400', 'cursor-not-allowed');
+            publicBtn.classList.add('text-[#C19300]', 'border-[#C19300]');
+
+            // Mantener otros botones deshabilitados
+            const adminButtons = ['nav-dashboard', 'nav-seguimiento', 'nav-expedientes', 'nav-busqueda'];
+            adminButtons.forEach(id => {
+                const btn = document.getElementById(id);
+                btn.disabled = true;
+                btn.classList.add('text-gray-400', 'cursor-not-allowed');
+            });
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            isPublicAccess = false;
+
+            // Resetear interfaz
+            document.getElementById('userInfo').textContent = 'Usuario: Público';
+            document.getElementById('logoutBtn').classList.add('hidden');
+
+            // Deshabilitar todas las pestañas
+            const navButtons = ['nav-dashboard', 'nav-nueva-solicitud', 'nav-seguimiento', 'nav-expedientes', 'nav-busqueda'];
+            navButtons.forEach(id => {
+                const btn = document.getElementById(id);
+                btn.disabled = true;
+                btn.classList.remove('border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-400', 'cursor-not-allowed');
+            });
+
+            // Ocultar campos administrativos
+            document.getElementById('adminFields').classList.add('hidden');
+
+            // Limpiar formularios
+            document.getElementById('loginForm').reset();
+            limpiarFormulario();
+
+            // Mostrar pantalla de login
+            showLoginScreen();
+        }
+
+        function generateFolio() {
+            const year = new Date().getFullYear();
+            const folio = `CD-${year}-${String(folioCounter).padStart(4, '0')}`;
+            folioCounter++;
+            localStorage.setItem('folioCounter', folioCounter);
+            return folio;
+        }
+
+        function showSection(sectionName) {
+            // Verificar permisos
+            if (!isLoggedIn && !isPublicAccess) {
+                alert('Debe iniciar sesión para acceder a esta sección');
+                return;
+            }
+
+            if (isPublicAccess && sectionName !== 'nueva-solicitud') {
+                alert('El acceso público solo permite registrar nuevas solicitudes');
+                return;
+            }
+
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionName).classList.remove('hidden');
+            document.getElementById(sectionName).classList.add('fade-in');
+
+            // Actualizar navegación
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (!btn.disabled) {
+                    btn.classList.remove('border-[#C19300]', 'text-[#C19300]');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                }
+            });
+
+            if (event && event.target && !event.target.disabled) {
+                event.target.classList.remove('border-transparent', 'text-gray-500');
+                event.target.classList.add('border-[#C19300]', 'text-[#C19300]');
+            }
+        }
+
+        // Función para convertir archivo a base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function validarYMostrarAviso() {
+            const form = document.getElementById('solicitudForm');
+            // Revisa si todos los campos requeridos están llenos
+            if (form.checkValidity()) {
+                openModal('privacidadModal');
+            } else {
+                // Si falta algún campo, muestra el mensaje de error del navegador
+                form.reportValidity();
+                alert('Por favor, complete todos los campos obligatorios (*) antes de continuar.');
+            }
+        }
+
+        // Enviar formulario al servidor
+        async function submitApplication() {
+            closeModal('privacidadModal'); // Cerramos el modal de privacidad
+
+            // Creamos un objeto FormData a partir del formulario HTML.
+            // Esto empaqueta automáticamente todos los campos y archivos.
+            const form = document.getElementById('solicitudForm');
+            const formData = new FormData(form);
+
+            try {
+                // Hacemos la llamada fetch a nuestro nuevo script PHP
+                const response = await fetch('api/registrar_solicitud.php', {
+                    method: 'POST',
+                    body: formData // Enviamos el objeto FormData directamente
+                    // NOTA: No establezcas el header 'Content-Type'. 
+                    // El navegador lo hace automáticamente por nosotros cuando usamos FormData.
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Mostramos el mensaje de éxito usando la nueva vista que ya tenías
+                    document.getElementById('solicitudForm').classList.add('hidden');
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    document.getElementById('folioSuccess').textContent = result.folio;
+
+                    form.reset(); // Limpiamos el formulario
+
+                    // Si es un admin quien registra, actualizamos su vista con los nuevos datos
+                    if (isLoggedIn) {
+                        cargarDatosDelServidor();
+                    }
+                } else {
+                    alert('Error al registrar la solicitud: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error al enviar el formulario:', error);
+                alert('Ocurrió un error de comunicación al enviar la solicitud.');
+            }
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('solicitudForm').reset();
+        }
+
+        // Resetear vista de nueva solicitud
+        function updateDashboard() {
+            if (!isLoggedIn) return;
+
+            const total = solicitudes.length;
+            const recibidas = solicitudes.filter(s => s.estatus === 'Recibido').length;
+            const enProceso = solicitudes.filter(s => s.estatus === 'En proceso').length;
+            const concluidas = solicitudes.filter(s => s.estatus === 'Concluido').length;
+
+            document.getElementById('totalSolicitudes').textContent = total;
+            document.getElementById('recibidas').textContent = recibidas;
+            document.getElementById('enProceso').textContent = enProceso;
+            document.getElementById('concluidas').textContent = concluidas;
+        }
+
+        // Actualizar estadísticas por municipio
+        async function updateMunicipiosStats() {
+            try {
+                const response = await fetch('api/obtener_estadisticas.php');
+                const statsData = await response.json();
+
+                const container = document.getElementById('municipiosStats');
+
+                if (statsData.length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-500 col-span-full">No hay datos de municipios para mostrar.</p>';
+                    return;
+                }
+
+                // Renderizar tarjetas de municipios
+                container.innerHTML = statsData.map(mun => `
+            <div class="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">${mun.nombre}</h4>
+                    <span class="text-2xl font-bold text-[#7d1c4a]">${mun.total}</span>
+                </div>
+                <div class="space-y-1 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Recibidas:</span>
+                        <span class="font-medium text-blue-700">${mun.Recibido}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">En proceso:</span>
+                        <span class="font-medium text-yellow-700">${mun['En proceso']}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Concluidas:</span>
+                        <span class="font-medium text-green-700">${mun.Concluido}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Archivadas:</span>
+                        <span class="font-medium text-gray-700">${mun.Archivado}</span>
+                    </div>
+                </div>
+                ${mun.total > 0 ? `
+                    <div class="mt-3 pt-2 border-t border-gray-200">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-gradient-to-r from-green-400 to-blue-500 h-2.5 rounded-full" style="width: ${mun.Concluido > 0 ? (mun.Concluido / mun.total * 100) : 0}%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1 text-center">${mun.Concluido > 0 ? Math.round(mun.Concluido / mun.total * 100) : 0}% completado</p>
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+
+            } catch (error) {
+                console.error("Error al cargar estadísticas de municipios:", error);
+                document.getElementById('municipiosStats').innerHTML = '<p class="text-center text-red-500 col-span-full">No se pudieron cargar las estadísticas.</p>';
+            }
+        }
+        // Cargar las últimas 10 solicitudes en el dashboard
+        function loadRecentSolicitudes() {
+            if (!isLoggedIn) return;
+
+            const tbody = document.getElementById('recentSolicitudes');
+            // Usamos slice para obtener solo las primeras 10 (ya vienen ordenadas desde el servidor)
+            const recent = solicitudes.slice(0, 10);
+
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay solicitudes registradas</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = recent.map(solicitud => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${solicitud.folio}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${solicitud.nombre_solicitante}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.fecha_creacion_formateada}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-${solicitud.estatus.toLowerCase().replace(' ', '')}">
+                    ${solicitud.estatus}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="verExpediente(${solicitud.id})" class="text-blue-600 hover:text-blue-900 mr-3">Ver</button>
+                <button onclick="cambiarEstatus(${solicitud.id})" class="text-green-600 hover:text-green-900">Gestionar</button>
+            </td>
+        </tr>
+    `).join('');
+        }
+
+        // Obtener ícono según estatus
+        function getStatusIcon(estatus) {
+            const icons = {
+                'Recibido': '📋',
+                'En proceso': '⏳',
+                'Concluido': '✅',
+                'Archivado': '📁'
+            };
+            return icons[estatus] || '📄';
+        }
+        // Cargar tabla de seguimiento
+        function loadSeguimiento() {
+            if (!isLoggedIn) return;
+
+            const tbody = document.getElementById('seguimientoTable');
+
+            if (solicitudes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No hay solicitudes para seguimiento</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = solicitudes.map(solicitud => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${solicitud.folio}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${solicitud.nombre_solicitante}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.fecha_creacion_formateada}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-${solicitud.estatus.toLowerCase().replace(' ', '')}">
+                    ${solicitud.estatus}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.responsable_actual || 'No asignado'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="cambiarEstatus(${solicitud.id})" class="text-blue-600 hover:text-blue-900 mr-3">Cambiar Estatus</button>
+                <button onclick="verExpediente(${solicitud.id})" class="text-green-600 hover:text-green-900">Ver Expediente</button>
+            </td>
+        </tr>
+    `).join('');
+        }
+
+        // Filtrar solicitudes por estatus
+        function filtrarPorEstatus() {
+            const filtro = document.getElementById('filterEstatus').value;
+            const tbody = document.getElementById('seguimientoTable');
+
+            let solicitudesFiltradas = solicitudes;
+            if (filtro) {
+                solicitudesFiltradas = solicitudes.filter(s => s.estatus === filtro);
+            }
+
+            if (solicitudesFiltradas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No hay solicitudes con este estatus</td></tr>';
+                return;
+            }
+            // Renderizar tabla con solicitudes filtradas
+            tbody.innerHTML = solicitudesFiltradas.map(solicitud => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${solicitud.folio}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${solicitud.nombre_solicitante}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(solicitud.fecha_creacion).toLocaleDateString('es-MX')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-${solicitud.estatus.toLowerCase().replace(' ', '')}">
+                            ${getStatusIcon(solicitud.estatus)} ${solicitud.estatus}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.responsable}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="cambiarEstatus(${solicitud.id})" class="text-blue-600 hover:text-blue-900 mr-3">Cambiar Estatus</button>
+                        <button onclick="verExpediente(${solicitud.id})" class="text-green-600 hover:text-green-900">Ver Expediente</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        // Cargar lista de expedientes
+        function loadExpedientes() {
+            if (!isLoggedIn) return;
+
+            const container = document.getElementById('expedientesList');
+
+            if (solicitudes.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500">No hay expedientes disponibles</p>';
+                return;
+            }
+
+            container.innerHTML = solicitudes.map(solicitud => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-medium text-gray-900">${solicitud.folio}</h4>
+                            <p class="text-sm text-gray-600">${solicitud.nombre_solicitante}</p>
+                            <p class="text-sm text-gray-500">Registrado: ${new Date(solicitud.fecha_creacion).toLocaleDateString('es-MX')}</p>
+                            <p class="text-xs text-gray-400 mt-1">Responsable: ${solicitud.responsable_actual || 'No asignado'}</p>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-${solicitud.estatus.toLowerCase().replace(' ', '')} mt-2">
+                                ${getStatusIcon(solicitud.estatus)} ${solicitud.estatus}
+                            </span>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <button onclick="verExpediente(${solicitud.id})" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                                Ver Expediente
+                            </button>
+                            <button onclick="cambiarEstatus(${solicitud.id})" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
+                                Gestionar
+                            </button>
+                            <button onclick="eliminarExpediente(${solicitud.id})" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // NUEVA FUNCIÓN PARA ELIMINAR EXPEDIENTES
+        async function eliminarExpediente(id) {
+            // Pedir confirmación al usuario es una práctica de seguridad crucial
+            const confirmacion = confirm("¿Está seguro de que desea eliminar permanentemente este expediente? Esta acción no se puede deshacer.");
+
+            if (confirmacion) {
+                try {
+                    const response = await fetch('api/eliminar_solicitud.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: id }) // Enviamos el ID en el cuerpo de la petición
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        alert('Expediente eliminado exitosamente.');
+                        // Recargamos los datos de todo el sistema para reflejar el cambio
+                        cargarDatosDelServidor();
+                    } else {
+                        alert('Error al eliminar: ' + (result.message || 'Error desconocido'));
+                    }
+
+                } catch (error) {
+                    console.error('Error al eliminar el expediente:', error);
+                    alert('Ocurrió un error de comunicación al intentar eliminar.');
+                }
+            }
+        }
+
+        // Funciones para cambiar estatus
+        async function cambiarEstatus(id) {
+            if (!isLoggedIn) {
+                alert('Debe iniciar sesión como administrador para cambiar el estatus');
+                return;
+            }
+
+            // Buscamos la solicitud en nuestro array de datos que ya tenemos
+            const solicitud = solicitudes.find(s => s.id == id);
+            if (!solicitud) {
+                alert("No se encontró la solicitud.");
+                return;
+            }
+
+            currentEditingId = id; // Guardamos el ID de la solicitud que estamos editando
+
+            // Llenamos el modal con la información actual
+            document.getElementById('modalFolio').textContent = `Folio: ${solicitud.folio} - ${solicitud.nombre_solicitante}`;
+            document.getElementById('nuevoEstatus').value = solicitud.estatus;
+
+            // El campo responsable ahora se llenará automáticamente en el servidor, pero podemos limpiarlo en el modal
+            const responsableInput = document.getElementById('nuevoResponsable');
+            if (responsableInput) responsableInput.value = ''; // Si el input existe, lo usamos
+
+            document.getElementById('observacionesEstatus').value = '';
+
+            // Mostramos el modal
+            openModal('statusModal');
+        }
+
+        function cerrarModalEstatus() {
+            document.getElementById('statusModal').classList.add('hidden');
+            document.getElementById('statusModal').classList.remove('flex');
+            currentEditingId = null;
+        }
+
+        async function guardarCambioEstatus() {
+            if (!currentEditingId) return;
+
+            // Recolectamos los datos del modal
+            const data = {
+                id: currentEditingId,
+                nuevoEstatus: document.getElementById('nuevoEstatus').value,
+                observaciones: document.getElementById('observacionesEstatus').value
+                // Ya no enviamos el responsable, se tomará de la sesión en PHP
+            };
+
+            try {
+                const response = await fetch('api/actualizar_estatus.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert('Estatus actualizado correctamente.');
+                    closeModal('statusModal'); // Cerramos el modal
+                    cargarDatosDelServidor(); // Recargamos los datos para ver los cambios
+                } else {
+                    alert('Error: ' + result.message);
+                }
+
+            } catch (error) {
+                console.error('Error al guardar el estatus:', error);
+                alert('Ocurrió un error de comunicación al actualizar el estatus.');
+            } finally {
+                currentEditingId = null; // Limpiamos el ID en edición
+            }
+        }
+
+        // Ver expediente detallado
+        async function verExpediente(id) {
+            try {
+                // Hacemos la llamada a nuestro nuevo endpoint, pasándole el ID
+                const response = await fetch(`api/obtener_expediente.php?id=${id}`);
+                if (!response.ok) {
+                    throw new Error('No se pudo obtener el expediente.');
+                }
+
+                const expediente = await response.json();
+
+                // Construimos el contenido HTML para el modal
+                const content = `
+            <div class="space-y-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">📋 Información General</h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div><strong>Folio:</strong> ${expediente.folio}</div>
+                        <div><strong>Fecha de Registro:</strong> ${new Date(expediente.fecha_creacion).toLocaleDateString('es-MX')}</div>
+                        <div><strong>Estatus Actual:</strong> <span class="px-2 py-1 text-xs rounded-full status-${expediente.estatus.toLowerCase().replace(' ', '')}">${expediente.estatus}</span></div>
+                        <div><strong>Responsable Actual:</strong> ${expediente.responsable_actual || 'No asignado'}</div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">👤 Datos del Solicitante</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div><strong>Nombre Completo:</strong> ${expediente.nombre_solicitante}</div>
+                        <div><strong>Municipio:</strong> ${expediente.municipio}</div>
+                        <div><strong>Teléfono:</strong> ${expediente.telefono}</div>
+                        <div><strong>Correo Electrónico:</strong> ${expediente.correo}</div>
+                        <div class="md:col-span-2"><strong>Domicilio:</strong> ${expediente.domicilio}</div>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">📝 Descripción de la Solicitud</h4>
+                    <div class="bg-white p-3 rounded border text-sm"><p>${expediente.descripcion.replace(/\n/g, '<br>')}</p></div>
+                    ${expediente.notas_administrativas ? `
+                        <div class="mt-3">
+                            <strong>📌 Notas Administrativas:</strong>
+                            <div class="bg-white p-3 rounded border mt-1 text-sm"><p>${expediente.notas_administrativas.replace(/\n/g, '<br>')}</p></div>
+                        </div>` : ''}
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">📁 Archivos Adjuntos</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div><strong>INE Anverso:</strong> ${expediente.path_ine_anverso ? `<a href="${expediente.path_ine_anverso.substring(3)}" target="_blank" class="text-blue-600 hover:underline">Ver/Descargar</a>` : 'No disponible'}</div>
+                        <div><strong>INE Reverso:</strong> ${expediente.path_ine_reverso ? `<a href="${expediente.path_ine_reverso.substring(3)}" target="_blank" class="text-blue-600 hover:underline">Ver/Descargar</a>` : 'No disponible'}</div>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">📄 Documentos de Respaldo</h4>
+                    <div class="text-sm">
+                        ${expediente.documentos && expediente.documentos.length > 0 ? `
+                            <ul class="list-disc list-inside space-y-2">
+                                ${expediente.documentos.map(doc => `
+                                    <li>
+                                        <a href="${doc.path_archivo.substring(3)}" target="_blank" class="text-blue-600 hover:underline">
+                                            ${doc.nombre_archivo}
+                                        </a>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        ` : '<p class="text-gray-500 italic">No se adjuntaron documentos de respaldo.</p>'}
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">📊 Historial de Seguimiento</h4>
+                    <div class="space-y-3">
+                        ${expediente.historial.length > 0 ? expediente.historial.map(h => `
+                            <div class="border-l-4 border-blue-500 pl-4 bg-white p-3 rounded">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-gray-800">${h.estatus_nuevo}</p>
+                                        <p class="text-sm text-gray-600 mt-1">${h.observaciones}</p>
+                                        <p class="text-xs text-gray-500 mt-2">👤 Responsable: ${h.responsable_cambio}</p>
+                                    </div>
+                                    <div class="text-right text-xs text-gray-500">
+                                        <span>${new Date(h.fecha_cambio).toLocaleDateString('es-MX')}</span><br>
+                                        <span>${new Date(h.fecha_cambio).toLocaleTimeString('es-MX')}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-sm text-gray-500 italic">No hay historial de cambios.</p>'}
+                    </div>
+                </div>
+            </div>
+        `;
+
+                // Llenamos el modal con el contenido y lo mostramos
+                document.getElementById('expedienteContent').innerHTML = content;
+                openModal('expedienteModal');
+
+            } catch (error) {
+                console.error("Error al cargar el expediente:", error);
+                alert("No se pudo cargar la información del expediente desde el servidor.");
+            }
+        }
+
+        function cerrarModalExpediente() {
+            document.getElementById('expedienteModal').classList.add('hidden');
+            document.getElementById('expedienteModal').classList.remove('flex');
+        }
+
+        // Funciones para manejo de archivos
+        function previewFile(fileData, fileName, fileType) {
+            document.getElementById('previewTitle').textContent = `Vista Previa: ${fileName}`;
+
+            const previewContent = document.getElementById('previewContent');
+
+            if (fileType.startsWith('image/')) {
+                previewContent.innerHTML = `
+                    <div class="text-center">
+                        <img src="${fileData}" alt="${fileName}" class="max-w-full max-h-full rounded shadow-lg">
+                        <p class="text-sm text-gray-600 mt-2">${fileName}</p>
+                    </div>
+                `;
+            } else if (fileType === 'application/pdf') {
+                previewContent.innerHTML = `
+                    <div class="text-center">
+                        <iframe src="${fileData}" class="w-full h-96 border rounded"></iframe>
+                        <p class="text-sm text-gray-600 mt-2">${fileName}</p>
+                    </div>
+                `;
+            } else {
+                previewContent.innerHTML = `
+                    <div class="text-center">
+                        <div class="bg-gray-100 p-8 rounded-lg">
+                            <div class="text-6xl mb-4">📄</div>
+                            <p class="text-lg font-medium text-gray-700">${fileName}</p>
+                            <p class="text-sm text-gray-500 mt-2">Vista previa no disponible para este tipo de archivo</p>
+                            <button onclick="downloadFile('${fileData}', '${fileName}')" class="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                📥 Descargar Archivo
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Configurar botón de descarga
+            document.getElementById('downloadFromPreview').onclick = () => downloadFile(fileData, fileName);
+
+            document.getElementById('filePreviewModal').classList.remove('hidden');
+            document.getElementById('filePreviewModal').classList.add('flex');
+        }
+
+        function downloadFile(fileData, fileName) {
+            try {
+                const link = document.createElement('a');
+                link.href = fileData;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                alert('Error al descargar el archivo. Por favor, intente nuevamente.');
+            }
+        }
+
+        function cerrarModalPreview() {
+            document.getElementById('filePreviewModal').classList.add('hidden');
+            document.getElementById('filePreviewModal').classList.remove('flex');
+        }
+
+        function buscarSolicitudes() {
+            if (!isLoggedIn) return;
+
+            const folio = document.getElementById('searchFolio').value.toLowerCase();
+            const nombre = document.getElementById('searchNombre').value.toLowerCase();
+            const municipio = document.getElementById('searchMunicipio').value;
+            const estatus = document.getElementById('searchEstatus').value;
+            const fecha = document.getElementById('searchFecha').value;
+
+            let resultados = solicitudes.filter(solicitud => {
+                const matchFolio = !folio || solicitud.folio.toLowerCase().includes(folio);
+                const matchNombre = !nombre || solicitud.nombre_solicitante.toLowerCase().includes(nombre);
+                const matchMunicipio = !municipio || solicitud.municipio === municipio;
+                const matchEstatus = !estatus || solicitud.estatus === estatus;
+                const matchFecha = !fecha || solicitud.fecha_creacion.startsWith(fecha);
+                return matchFolio && matchNombre && matchMunicipio && matchEstatus && matchFecha;
+            });
+
+            const tbody = document.getElementById('searchResultsBody');
+
+            if (resultados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No se encontraron resultados con los criterios especificados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = resultados.map(solicitud => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${solicitud.folio}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${solicitud.nombre_solicitante}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(solicitud.fecha_creacion).toLocaleDateString('es-MX')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-${solicitud.estatus.toLowerCase().replace(' ', '')}">
+                            ${getStatusIcon(solicitud.estatus)} ${solicitud.estatus}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="verExpediente(${solicitud.id})" class="text-blue-600 hover:text-blue-900 mr-3">Ver</button>
+                        <button onclick="cambiarEstatus(${solicitud.id})" class="text-green-600 hover:text-green-900">Gestionar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Funciones genéricas para abrir y cerrar modales
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Función para mostrar la ayuda de un campo
+        function showHelp(field) {
+            const titleElement = document.getElementById('helpModalTitle');
+            const bodyElement = document.getElementById('helpModalBody');
+            let title = '';
+            let body = '';
+
+            switch (field) {
+                case 'nombre':
+                    title = 'Nombre Completo';
+                    body = 'Por favor, escribe tu nombre completo. Usa el mismo nombre que aparece en tu credencial de elector.';
+                    break;
+                case 'municipio':
+                    title = 'Municipio';
+                    body = 'Selecciona de la lista el municipio de Baja California donde vives.';
+                    break;
+                case 'telefono':
+                    title = 'Teléfono';
+                    body = 'Escribe un número de 10 dígitos donde podamos llamarte para darte avisos importantes.';
+                    break;
+                case 'correo':
+                    title = 'Correo Electrónico';
+                    body = 'Escribe un correo electrónico que uses a menudo. Te mandaremos el folio de tu solicitud y otros avisos.';
+                    break;
+                case 'domicilio':
+                    title = 'Domicilio Completo';
+                    body = 'Anota la dirección completa de tu casa: calle, número, colonia y código postal. Esto es para verificar dónde vives.';
+                    break;
+                case 'ine-anverso':
+                    title = 'INE Anverso (Frente)';
+                    body = 'Sube una foto clara de la parte frontal de tu INE. Asegúrate de que tu nombre y foto se distingan bien.';
+                    break;
+                case 'ine-reverso':
+                    title = 'INE Reverso (Atrás)';
+                    body = 'Sube una foto clara de la parte de atrás de tu INE. Revisa que el código y la fecha de vigencia se vean sin problemas.';
+                    break;
+                case 'documentos':
+                    title = 'Documentos de Respaldo';
+                    body = 'Si tienes otros documentos que ayuden a tu solicitud (como un comprobante de ingresos o un acta de nacimiento), súbelos aquí. Puedes subir más de uno.';
+                    break;
+                case 'descripcion':
+                    title = 'Detalle su solicitud';
+                    body = 'Usa este espacio para contarnos qué necesitas y por qué. Entre más detalles nos des, más rápido podremos ayudarte con tu solicitud.';
+                    break;
+            }
+
+            titleElement.textContent = title;
+            bodyElement.innerHTML = `<p>${body}</p>`;
+            openModal('helpModal');
+        }
+
+        function resetNewSolicitudView() {
+            // Oculta el mensaje de éxito
+            document.getElementById('successMessage').classList.add('hidden');
+            // Vuelve a mostrar el formulario para una nueva captura
+            document.getElementById('solicitudForm').classList.remove('hidden');
+        }
+
+        // Actualizar fecha cada minuto
+        setInterval(updateCurrentDate, 60000);
+    </script>
+
+</body>
+
+</html>
