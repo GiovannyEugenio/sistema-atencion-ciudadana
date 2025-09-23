@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestión de Atención Ciudadana - Cámara de Diputados</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .fade-in {
             animation: fadeIn 0.3s ease-in;
@@ -46,6 +47,22 @@
             background-size: 100% 100%;
             background-attachment: fixed;
         }
+
+        .zoom-in-fade {
+            animation: zoomInFade 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes zoomInFade {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
 
@@ -62,33 +79,29 @@
         </div>
 
         <div class="flex items-center justify-center flex-1 w-full max-w-2xl mx-auto py-8 px-4">
-            <div class="bg-white rounded-lg shadow-2xl p-6 md:p-12 w-full text-center">
+            <div
+                class="bg-white rounded-lg shadow-2xl p-8 md:p-12 w-full max-w-md md:max-w-2xl text-center zoom-in-fade">
 
-                <div class="mb-16">
+                <div class="mb-8 md:mb-12">
 
-                    <div class="mb-8">
-                        <div class="relative w-full aspect-square md:w-96 md:h-96 mx-auto">
+                    <div class="mb-6 md:mb-8">
+                        <div class="relative w-48 h-48 md:w-80 md:h-80 mx-auto">
                             <img src="static/diputadotrenti.png" alt="Diputado Fernando Castro Trenti"
                                 class="object-cover w-full h-full rounded-lg shadow-md">
                         </div>
                     </div>
 
-                    <h2 class="text-3xl font-bold text-[#7d1c4a]">Sistema de Atención Ciudadana Digital</h2>
+                    <h2 class="text-2xl md:text-3xl font-bold text-[#7d1c4a]">Sistema de Atención Ciudadana Digital</h2>
 
-                    <p class="text-gray-600 mt-2 text-xl text-justify">
+                    <p class="text-gray-600 mt-2 text-lg md:text-xl text-center md:text-justify">
                         Bienvenido. Desde aquí puedes iniciar tu trámite de forma directa y segura.
-
                     </p>
                 </div>
 
                 <button onclick="accessPublicForm()"
-                    class="w-full bg-[#7d1c4a] text-white py-4 px-6 rounded-md text-lg hover:bg-[#C19300] focus:outline-none focus:ring-2 focus:ring-[#C19300] transition-colors duration-200">
+                    class="w-full bg-[#7d1c4a] text-white py-3 px-6 rounded-md text-base md:text-lg hover:bg-[#C19300] focus:outline-none focus:ring-2 focus:ring-[#C19300] transition-colors duration-200">
                     Registrar Solicitud
                 </button>
-
-                <p class="text-xs text-gray-500 mt-10 text-center">
-                    Este acceso es para el público en general que desea iniciar un trámite.
-                </p>
             </div>
 
         </div>
@@ -129,7 +142,7 @@
                 </button>
             </form>
 
-            
+
         </div>
     </div>
 
@@ -183,26 +196,30 @@
 
     <!-- Navigation -->
     <nav class="bg-white shadow-md border-b">
-        <div class="container mx-auto px-6">
-            <div class="flex space-x-8">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex space-x-6 overflow-x-auto whitespace-nowrap py-1">
                 <button id="nav-dashboard" onclick="showSection('dashboard')"
-                    class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
+                    class="nav-btn py-3 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed flex-shrink-0"
+                    disabled>
                     Dashboard
                 </button>
                 <button id="nav-nueva-solicitud" onclick="showSection('nueva-solicitud')"
-                    class="nav-btn py-4 px-2 border-b-2 border-[#C19300] text-[#C19300] font-medium">
+                    class="nav-btn py-3 px-2 border-b-2 border-[#C19300] text-[#C19300] font-medium flex-shrink-0">
                     Nueva Solicitud
                 </button>
                 <button id="nav-seguimiento" onclick="showSection('seguimiento')"
-                    class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
+                    class="nav-btn py-3 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed flex-shrink-0"
+                    disabled>
                     Seguimiento
                 </button>
                 <button id="nav-expedientes" onclick="showSection('expedientes')"
-                    class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
+                    class="nav-btn py-3 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed flex-shrink-0"
+                    disabled>
                     Expedientes
                 </button>
                 <button id="nav-busqueda" onclick="showSection('busqueda')"
-                    class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
+                    class="nav-btn py-3 px-2 border-b-2 border-transparent text-gray-400 cursor-not-allowed flex-shrink-0"
+                    disabled>
                     Búsqueda
                 </button>
             </div>
