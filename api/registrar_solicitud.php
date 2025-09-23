@@ -32,7 +32,7 @@ $domicilio = $_POST['domicilioSolicitante'] ?? '';
 $descripcion = $_POST['descripcionSolicitud'] ?? '';
 $responsable_registro = $_POST['responsableRegistro'] ?? null;
 $notas_admin = $_POST['notasObservaciones'] ?? null;
-$folio = "CD-" . date('Y') . "-" . strtoupper(uniqid());
+$folio = "CD-" . date('y') . "-" . strtoupper(uniqid());
 
 // --- INSERCIÓN EN LA BASE DE DATOS (Versión PDO) ---
 try {
