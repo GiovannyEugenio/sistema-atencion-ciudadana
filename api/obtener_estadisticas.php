@@ -1,14 +1,16 @@
 <?php
-include 'conexion.php';
+include 'conexion.php'; // Incluye la conexión PDO
 
-// Consulta para contar solicitudes, agrupadas por municipio y luego por estatus
 $sql = "SELECT municipio, estatus, COUNT(*) as total FROM solicitudes GROUP BY municipio, estatus";
-$resultado = $conexion->query($sql);
 
-$stats_por_municipio = [];
+try {
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($resultado) {
-    while ($fila = $resultado->fetch_assoc()) {
+    $stats_por_municipio = [];
+
+    foreach ($results as $fila) {
         $municipio = $fila['municipio'];
         $estatus = $fila['estatus'];
         $total = intval($fila['total']);
@@ -31,10 +33,14 @@ if ($resultado) {
             $stats_por_municipio[$municipio][$estatus] = $total;
         }
     }
+
+    // Convertimos el array asociativo a un array simple para que sea más fácil de usar en JS
+    echo json_encode(array_values($stats_por_municipio));
+
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(["error" => "Error al obtener las estadísticas: " . $e->getMessage()]);
 }
 
-// Convertimos el array asociativo a un array simple para que sea más fácil de usar en JS
-echo json_encode(array_values($stats_por_municipio));
-
-$conexion->close();
+$conexion = null;
 ?>
