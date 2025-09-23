@@ -11,19 +11,17 @@ if (!$input) {
 }
 $data = json_decode($input);
 
-// 2. Obtener las variables directamente del objeto decodificado
+// 2. Obtener las variables
 $usuario_form = $data->username;
 $password_form = $data->password;
 
-// 3. Preparar la consulta para buscar al usuario
-$stmt = $conexion->prepare("SELECT id, password, nombre_completo FROM usuarios WHERE usuario = ?");
-$stmt->bind_param("s", $usuario_form);
-$stmt->execute();
-$resultado = $stmt->get_result();
+// 3. Preparar la consulta para PDO
+$stmt = $conexion->prepare("SELECT id, password, nombre_completo FROM usuarios WHERE usuario = :usuario");
+$stmt->execute([':usuario' => $usuario_form]);
 
-if ($resultado->num_rows === 1) {
-    $admin = $resultado->fetch_assoc();
+$admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
+if ($admin) {
     // 4. Verificar la contraseña hasheada
     if (password_verify($password_form, $admin['password'])) {
         // Si es correcta, iniciar sesión
@@ -42,6 +40,6 @@ if ($resultado->num_rows === 1) {
     echo json_encode(["success" => false, "message" => "Usuario no encontrado."]);
 }
 
-$stmt->close();
-$conexion->close();
+// En PDO, la conexión se cierra al terminar el script o asignando null
+$conexion = null;
 ?>
