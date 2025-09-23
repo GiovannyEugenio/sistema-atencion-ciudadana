@@ -1,22 +1,29 @@
 <?php
-include 'conexion.php'; 
+include 'conexion.php'; // Incluye la conexión PDO
 
-// Ahora también seleccionamos el responsable_actual para la tabla de seguimiento
 $sql = "SELECT id, folio, fecha_creacion, nombre_solicitante, municipio, estatus, responsable_actual FROM solicitudes ORDER BY fecha_creacion DESC";
 
-$resultado = $conexion->query($sql);
+try {
+    // En PDO, preparamos y ejecutamos la consulta
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute();
 
-$solicitudes = [];
+    // Obtenemos todos los resultados de una vez
+    $solicitudes_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $solicitudes = [];
 
-if ($resultado->num_rows > 0) {
-    while($fila = $resultado->fetch_assoc()) {
-        // Formateamos la fecha para que sea más legible en el front-end
+    // Recorremos los resultados para formatear la fecha (esto no cambia)
+    foreach ($solicitudes_raw as $fila) {
         $fila['fecha_creacion_formateada'] = date("d/m/Y", strtotime($fila['fecha_creacion']));
         $solicitudes[] = $fila;
     }
+
+    echo json_encode($solicitudes);
+
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(["error" => "Error al obtener las solicitudes: " . $e->getMessage()]);
 }
 
-echo json_encode($solicitudes);
-
-$conexion->close();
+$conexion = null;
 ?>
