@@ -1496,15 +1496,7 @@
                             <div class="bg-white p-3 rounded border mt-1 text-sm"><p>${expediente.notas_administrativas.replace(/\n/g, '<br>')}</p></div>
                         </div>` : ''}
                 </div>
-                /*
-                <div class="bg-yellow-50 p-4 rounded-lg">
-                    <h4 class="text-lg font-medium text-gray-900 mb-3">📁 Archivos Adjuntos</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div><strong>INE Anverso:</strong> ${expediente.path_ine_anverso ? `<a href="${expediente.path_ine_anverso.substring(3)}" target="_blank" class="text-blue-600 hover:underline">Ver/Descargar</a>` : 'No disponible'}</div>
-                        <div><strong>INE Reverso:</strong> ${expediente.path_ine_reverso ? `<a href="${expediente.path_ine_reverso.substring(3)}" target="_blank" class="text-blue-600 hover:underline">Ver/Descargar</a>` : 'No disponible'}</div>
-                    </div>
-                </div>
-                */
+                
                 <div class="bg-indigo-50 p-4 rounded-lg">
                     <h4 class="text-lg font-medium text-gray-900 mb-3">📄 Documentos de Respaldo</h4>
                     <div class="text-sm">
@@ -1545,6 +1537,15 @@
             </div>
         `;
 
+                /*esta seccion va arriba pero no se puede comentar 
+                                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">📁 Archivos Adjuntos</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div><strong>INE Anverso:</strong> ${expediente.path_ine_anverso ? `<a href="${expediente.path_ine_anverso.substring(3)}" target="_blank" class="text-blue-600 hover:underline">Ver/Descargar</a>` : 'No disponible'}</div> 
+                        <div><strong>INE Reverso:</strong> ${expediente.path_ine_reverso ? `<a href="${expediente.path_ine_reverso.substring(3)}" target="_blank" class="text-blue-600 hover:underline">Ver/Descargar</a>` : 'No disponible'}</div>
+                    </div>
+                </div>
+                */
                 // Llenamos el modal con el contenido y lo mostramos
                 document.getElementById('expedienteContent').innerHTML = content;
                 openModal('expedienteModal');
